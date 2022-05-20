@@ -15,6 +15,13 @@ const Home = () => {
   const [result, setResult] = useState(null);
   const [showResult, setShowResult] = useState(false);
   const [buttonDisabled, setButtonDisabled] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  function capitalizeFirstLetter(string) {
+    if(string) {
+      return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+  }
 
   const getUrlList = () => {
     fetch("/api/all-pokemons")
@@ -34,7 +41,7 @@ const Home = () => {
           decoyTwo =
             data.results[Math.floor(Math.random() * data.results.length)];
         }
-        const urlList = [pokemon.url, decoyOne.url, decoyTwo.url];
+        const urlList = [pokemon.name, decoyOne.name, decoyTwo.name];
 
         setUrlList(urlList);
       });
@@ -56,33 +63,47 @@ const Home = () => {
 
   const feedback = () => {
     if (result) {
-      return <h2 className="text-center text-success">Corret!</h2>;
+      return (
+        <h2 className="text-center text-success">
+          Corret. It&apos;s {capitalizeFirstLetter(pokemon.name)}!
+        </h2>
+      );
     } else {
-      return <h2 className="text-center text-danger">Incorrect</h2>;
+      return (
+        <h2 className="text-center text-danger">
+          Incorrect. It&apos;s {capitalizeFirstLetter(pokemon.name)}!
+        </h2>
+      );
     }
   };
 
   const next = () => {
+    setLoading(true);
     setPokemon({});
     setOptions(false);
     setShowResult(false);
     setUserAnswer(null);
-    getUrlList();
-    setShadow(true);
-    setButtonDisabled(false);
+    setTimeout(() => {
+      getUrlList();
+      setShadow(true);
+      setButtonDisabled(false);
+    }, 1000)
   };
 
   useEffect(() => {
     if (urlList.length === 3) {
-      fetch(urlList[0])
+      fetch(`/api/pokemon/${urlList[0]}`)
         .then((res) => res.json())
-        .then((data) => setPokemon(data));
+        .then((data) => {
+          setPokemon(data);
+          setLoading(false);
+        });
 
-      fetch(urlList[1])
+      fetch(`/api/pokemon/${urlList[1]}`)
         .then((res) => res.json())
         .then((data) => setA(data));
 
-      fetch(urlList[2])
+      fetch(`/api/pokemon/${urlList[2]}`)
         .then((res) => res.json())
         .then((data) => setB(data));
     }
@@ -107,7 +128,7 @@ const Home = () => {
     const shuffledOptions = shuffle(options);
 
     setOptions(shuffledOptions);
-  }, [pokemon, a, b, buttonDisabled]);
+  }, [pokemon, a, b]);
 
   const shuffle = (array) => {
     let currentIndex = array.length,
@@ -130,48 +151,52 @@ const Home = () => {
   };
 
   return (
-    <>
+    <div className="main">
       <Header />
       <div className="container rounded">
-        <h1 className="text-center">Who is that Pokémon?</h1>
-        {pokemon && (
-          <Pokemon urlList={urlList} shadow={shadow} a={a.name} b={b.name} />
+        {!loading && (
+          <div>
+            <Pokemon urlList={urlList} shadow={shadow} a={a.name} b={b.name} />
+            <div className="row my-2">
+              {options.length === 3 &&
+                options.map((e, index) => {
+                  return (
+                    <div
+                      className="col-4 justify-content-center d-flex"
+                        key={index}
+                      >
+                      <button
+                        disabled={buttonDisabled}
+                        className="btn btn-options"
+                        onClick={() => select(e.name)}
+                      >
+                        {capitalizeFirstLetter(e.name)}
+                      </button>
+                    </div>
+                  );
+                })}
+            </div>
+            <div className="d-flex justify-content-center">
+              <button
+                className="btn my-2 btn-next"
+                disabled={!buttonDisabled}
+                onClick={() => next()}
+              >
+                Next
+              </button>
+            </div>
+          </div>
         )}
-        <div>
-          <div className="row my-2">
-            {options.length === 3 &&
-              options.map((e) => {
-                return (
-                  <div
-                    className="col-4 justify-content-center d-flex"
-                    key={e.id}
-                  >
-                    <button
-                      disabled={buttonDisabled}
-                      className="btn btn-primary"
-                      onClick={() => select(e.name)}
-                    >
-                      {e.name}
-                    </button>
-                  </div>
-                );
-              })}
+        {loading && (
+          <div className="row justify-content-center">
+            <Loader/>
           </div>
-          <div className="d-flex justify-content-center">
-            <button
-              className="btn my-2 btn-danger"
-              disabled={!buttonDisabled}
-              onClick={() => next()}
-            >
-              Next
-            </button>
-          </div>
-        </div>
+        )}
         <div>{showResult && feedback()}</div>
       </div>
       {/* <Loader /> */}
       <Footer />
-    </>
+    </div>
   );
 };
 

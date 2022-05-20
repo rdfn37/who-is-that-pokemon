@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import { useEffect } from "react";
+import Loader from "./Loader";
 import styles from "./styles/pokemon.module.css";
 
 const Pokemon = (props) => {
@@ -8,7 +9,7 @@ const Pokemon = (props) => {
 
   const getPokemon = (url) => {
     if (url) {
-      fetch(url)
+      fetch(`/api/pokemon/${url}`)
         .then((res) => res.json())
         .then((data) => setPokemon(data));
     }
