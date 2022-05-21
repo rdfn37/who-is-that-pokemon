@@ -38,3 +38,11 @@ a {
 .btn-next {
   background-color: #187498;
 }
+
+.option {
+  width: 200px;
+}
+
+.option > button {
+  width: 190px;
+}
