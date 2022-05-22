@@ -3,8 +3,6 @@ import { useState, useEffect } from "react";
 const Option = (props) => {
   const [option, setOption] = useState(null);
 
-  console.log(props.pokemon);
-
   function capitalizeFirstLetter(string) {
     if (string) {
       return string.charAt(0).toUpperCase() + string.slice(1);

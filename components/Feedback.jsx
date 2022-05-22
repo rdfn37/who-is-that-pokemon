@@ -11,7 +11,6 @@ const Feedback = (props) => {
         getFeedback(props.feedback)
     }, [props])
 
-    console.log(props)
     return(
         <>
         <div className="feedback">

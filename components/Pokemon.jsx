@@ -18,8 +18,6 @@ const Pokemon = (props) => {
     getPokemon(props.pokemon.url);
   }, [props]);
 
-  console.log(props)
-
   return (
     <>
       {pokemon && <Image className={`${props.shadow ? "pokeshadow" : null}`} alt="" src={pokemon["sprites"]["other"]["official-artwork"]["front_default"]} height={200} width={200} />}
